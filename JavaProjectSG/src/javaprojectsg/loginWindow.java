@@ -31,7 +31,7 @@ public class loginWindow extends javax.swing.JFrame {
         Connection con;
         
         try {
-            String dburl= "jdbc:mysql://localhost:3306/shoppingguide?zeroDateTimeBehavior=convertToNull";
+            String dburl= "jdbc:mysql://localhost:3306/shoppingguide?useSSL=false";
 	    String user="root";
 	    String pass="root";
 	    con=DriverManager.getConnection(dburl,user,pass);
@@ -56,49 +56,36 @@ public class loginWindow extends javax.swing.JFrame {
             try{
                 Connection con=getConnection();
                 Statement myStatement=con.createStatement();
-	    ResultSet myResultSet=myStatement.executeQuery("select * from users");
-                
-         while(myResultSet.next()){
+	        String query;
+                query = "select username,passwords from users where username='"+username.getText()+"' and passwords='"+password.getText()+"'";
+ResultSet myResultSet=myStatement.executeQuery(query);
+           if(myResultSet.next()==true){
+               
+                       JOptionPane.showMessageDialog(null, "Login successful");
+                       return true;
+           }    
+           else
+           {
+                   JOptionPane.showMessageDialog(null,"invalid username or password");
+                       
+               return false;
              
-                     if(myResultSet.getString("username").equals(username.getText())){
-                         if(myResultSet.getString("passwords").equals(password.getText())){
-                             if(budget.getText().isEmpty()){
-                                 JOptionPane.showMessageDialog(null,"Give budget!");
-                                 return false;
-                             }
-                             else{try{
-                                 PreparedStatement ps=con.prepareStatement("update users set budget=? WHERE username=?;");
-                                 ps.setDouble(1, Double.parseDouble(budget.getText()));
-                                 ps.setString(2, username.getText());
-                                 ps.executeUpdate();
-                                 
-                                 JOptionPane.showMessageDialog(null, "Login successful");
-                                 return true;
-                             }catch(Exception e){
-                                 JOptionPane.showMessageDialog(null, e.getMessage());
-                             }}
-                             
-                             
-                         }
-                         else{
-                             JOptionPane.showMessageDialog(null,"Password is incorrect!");
-                             return false;
-                         }
-                        
-                     }
-                     
-         }
-         JOptionPane.showMessageDialog(null, "not registered");
-    
-            }catch(Exception ex){
-                
+           }
+         
             }
-        }else{
-            JOptionPane.showMessageDialog(null,"one or more fields are empty");
+                            catch(SQLException ex){
+                                    
+                        JOptionPane.showMessageDialog(null,ex);
+                            }
+        
+         }
+        else{
+            JOptionPane.showMessageDialog(null, "one or more fields are empty");
         }
         return false;
-        
+       
     }
+    
     
     public boolean checkUsername(){
         
@@ -137,8 +124,6 @@ public class loginWindow extends javax.swing.JFrame {
         username = new javax.swing.JTextField();
         cancel = new javax.swing.JButton();
         login = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        budget = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setSize(new java.awt.Dimension(0, 0));
@@ -190,17 +175,6 @@ public class loginWindow extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jLabel5.setText("Budget :");
-
-        budget.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        budget.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
-        budget.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                budgetActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -210,10 +184,6 @@ public class loginWindow extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addComponent(jLabel5)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(budget, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jLabel2)
@@ -241,11 +211,7 @@ public class loginWindow extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel2)
                     .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(budget, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(36, 36, 36)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 105, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancel, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(login, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -304,10 +270,6 @@ public class loginWindow extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_usernameActionPerformed
 
-    private void budgetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_budgetActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_budgetActionPerformed
-
     /**
      * @param args the command line arguments
      */
@@ -347,12 +309,10 @@ public class loginWindow extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField budget;
     private javax.swing.JButton cancel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton login;
     private javax.swing.JTextField password;
